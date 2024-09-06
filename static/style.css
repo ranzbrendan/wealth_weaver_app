@@ -1,0 +1,55 @@
+body::before {
+    display: block;
+    content: '';
+    height: 60px;
+}
+
+@media(min-width: 768px) {
+    .news-input {
+        width: 50%;
+    }
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.message {
+    padding-top: 2rem;
+    text-align: center;
+}
+
+.table-hover tbody tr:hover td:nth-child(4) {
+    background-color: #inherit !important;
+    color: inherit !important;
+    border-color: inherit !important;
+    box-shadow: none !important;
+}
+
+#empty_graph {
+    height: 300px;
+    background-color: white;
+}
+
+#empty_graph_msg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+@media (min-width: 576px) {
+    .w-sm-50 {
+        width: 50% !important;
+    }
+}
+

@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block message %}
+
+    <!-- Add Transaction -->
+    <section class="p-3">
+        <p class="lead">Add Transaction:</p>
+        <p id="error_message" style="color: red; display: none;">Please enter a number greater than 10.</p>
+        <form class="row g-3 mb-1" action="/transactions" method="post" id="form_transaction">
+            <div class="col-md-2">
+                <select id="transaction_type" class="form-select" name="transaction_type" required="true">
+                    <option {% if type_selected == 0 %} selected {% endif %} disabled value="">Transaction Type</option>
+                    <option {% if type_selected == 'Income' %} selected {% endif %} value="Income">Income</option>
+                    <option {% if type_selected == 'Expenses' %} selected {% endif %} value="Expenses">Expenses</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="category" id="selectCategory" required="true">
+                    <option {% if category_selected == 0 %} selected {% endif %} disabled value="0">Category</option>
+                    {% for category in categories %}
+                        <option {% if category_selected == category.category %} selected {% endif %} value="{{ category.category }}">{{ category.category }}</option>
+                    {% endfor %}
+                    <option value="openModal">Add New Category</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input id="amount_input" autocomplete="off" type="number" class="form-control" placeholder="Amount ({{ 0.00 | php }})" min="0" name="amount" step="any" required="true">
+            </div>
+            <div class="col-md-2">
+                <input id="transaction_date" autocomplete="off" type="date" class="form-control" name="transaction_date" required="true">
+            </div>
+            <div class="col-md-3">
+                <input autocomplete="off" type="text" class="form-control" placeholder="Description" name="description">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <input type="hidden" name="form_id" value="add">
+                <button type="submit" class="btn btn-outline-dark">Add</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Category</h1>
+                    <button type="button" class="btn-close modalClose" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="category-name" class="col-form-label">Category Name:</label>
+                            <input autocomplete="off" type="text" class="form-control" id="categoryName">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modalClose" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="saveCategory">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Enable tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+            const modalElement = document.getElementById('categoryModal');
+            const myModal = new bootstrap.Modal(modalElement);
+            const selection = document.getElementById("selectCategory");
+            const addCategory = document.getElementById("addCategory");
+            const saveCategory = document.getElementById('saveCategory');
+            const closeModals = document.getElementsByClassName('modalClose');
+            var categoryInput = document.getElementById('categoryName');
+
+            // For add transactions validation
+            const amount_input = document.getElementById('amount_input');
+            const transaction_type = document.getElementById('transaction_type');
+            const transaction_date = document.getElementById('transaction_date');
+            const transaction_form = document.getElementById('form_transaction');
+            const error_message = document.getElementById('error_message');
+
+            // Set minimum amount input
+
+            transaction_type.addEventListener("change", function() {
+                if(transaction_type.value == 'Expenses'){
+                    fetch('/set_min_amount', {
+                        method: 'GET',
+                    })
+
+                    .then(response => response.json())
+                    .then(data => {
+                        amount_input.setAttribute('max', data.balance);
+                        if(amount_input.value > data.balance){
+                            amount_input.setCustomValidity("Value must be greater than your account balance.");
+                        }
+                        amount_input.setCustomValidity("");
+                    })
+                    .catch(error => {
+                        console.error('Error adding option:', error);
+                    });
+                }
+                else if(transaction_type.value == 'Income'){
+                    amount_input.removeAttribute('max');
+                    amount_input.setCustomValidity("");
+                }
+            });
+
+            // Set max date for transaction_date
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var dd = String(today.getDate()).padStart(2, '0');
+
+            const maxDate = `${yyyy}-${mm}-${dd}`;
+
+            transaction_date.setAttribute('max', maxDate);
+
+            // Convert HTMLCollection to array and loop through. This sets the selected category when modal is closed.
+            Array.from(closeModals).forEach(modalClose => {
+                modalClose.addEventListener("click", function () {
+                    selection.selectedIndex = 0;
+                });
+            });
+
+            selection.addEventListener('change', function () {
+                if (selection.value === 'openModal') {
+                    myModal.show();
+                    setTimeout(() => {
+                        categoryInput.focus();
+                    }, 500);
+                }
+            });
+
+            categoryInput.addEventListener("keydown", function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    saveCategory.click();
+                }
+            });
+
+            saveCategory.addEventListener("click", function () {
+                var newCategoryName = categoryInput.value;
+                newCategoryName = newCategoryName.charAt(0).toUpperCase() + newCategoryName.slice(1);
+
+                // Make an AJAX request to the Flask endpoint
+                fetch('/add_category', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        category: newCategoryName
+                    })
+                })
+
+                .then(response => response.json())
+                .then(data => {
+                    // Update the select element with the new option
+                    var newCategory = document.createElement("option");
+                    newCategory.value = newCategoryName;
+                    newCategory.text = newCategoryName;
+
+                    selection.insertBefore(newCategory, selection.options[selection.options.length - 1]);
+
+                    // Reset the select value to the newly added option
+                    selection.value = newCategory.value;
+                    categoryInput.selectedIndex = 0;
+                })
+                .catch(error => {
+                    console.error('Error adding option:', error);
+                });
+            });
+        });
+
+    </script>
+
+{% endblock %}
+
+{% block main %}
+
+    <section class="p-3">
+        <div class="row g-4">
+
+            <div class="col-md-12 col-lg-6 pb-5 mb-5">
+                <p class="lead text-center mb-5">INCOME</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-start lead">Category</th>
+                            <th class="text-center lead">Amount</th>
+                            <th class="text-end lead">Transaction Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in income %}
+                            <tr data-bs-toggle="tooltip" data-bs-title="{{ i.description }}" data-bs-placement="top">
+                                <td class="text-start">{{ i.category }} </td>
+                                <td class="text-center">{{ i.amount | php }}</td>
+                                <td class="text-end">{{ i.transaction_datetime }}</td>
+                                <td class="text-start border-0 bg-light">
+                                    <form action="/transactions" method="post">
+                                        <input type="hidden" name="form_id" value="delete">
+                                        <input type="hidden" name="transaction_id" value="{{ i.id_transaction }}">
+                                        <button type="submit" class="btn btn-secondary btn-sm p-0 px-2">
+                                            <i class="bi bi-trash"></i>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-12 col-lg-6 pb-5 mb-5">
+                <p class="lead text-center mb-5">EXPENSES</p>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-start lead">Category</th>
+                            <th class="text-end lead">Amount</th>
+                            <th class="text-end lead">Transaction Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in expenses %}
+                            <tr data-bs-toggle="tooltip" data-bs-title="{{ e.description }}" data-bs-placement="top">
+                                <td class="text-start">{{ e.category }} </td>
+                                <td class="text-center">{{ e.amount | php }}</td>
+                                <td class="text-end">{{ e.transaction_datetime }}</td>
+                                <td class="text-start border-0 bg-light">
+                                    <form action="/transactions" method="post">
+                                        <input type="hidden" name="form_id" value="delete">
+                                        <input type="hidden" name="transaction_id" value=" {{ e.id_transaction }}">
+                                        <button type="submit" class="btn btn-secondary btn-sm p-0 px-2">
+                                            <i class="bi bi-trash"></i>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </section>
+
+
+{% endblock %}

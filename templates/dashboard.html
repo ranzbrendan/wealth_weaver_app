@@ -1,0 +1,138 @@
+{% extends "layout.html" %}
+
+{% block message %}
+    {% if balance == 0.00 %}
+    <div id="lead get-started-message">
+        <p class="lead">
+            Ready to take control of your finances? Start by adding your current savings to your transactions. Let's track your progress together!
+        </p>
+        <form action="/transactions" method="get">
+            <button type="submit" class="btn btn-secondary">Get Started</button>
+        </form>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <section class="px-lg-3">
+        <div class="container">
+            <div class="row g-4">
+
+                <div class="col-md-3">
+                    <h1>Hi, {{ name }}</h1>
+                    <a tabindex="0" class="btn btn-md btn-outline-dark" role="button" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-content="{{ balance | php }}">
+                        Account Balance
+                    </a>
+                    <div class="mt-3 mt-md-5 align-self-center">
+                        <form action="/select_graph" method="POST" id="graph_selection_form">
+                            <input type="radio" class="btn-check" name="graph_option" id="daily" autocomplete="off" value="daily" {% if graph_selected == 'daily' %} checked {% endif %}>
+                            <label class="btn w-100" for="daily">Daily</label><br>
+
+                            <input type="radio" class="btn-check" name="graph_option" id="weekly" autocomplete="off" value="weekly" {% if graph_selected == 'weekly' %} checked {% endif %}>
+                            <label class="btn w-100" for="weekly">Weekly</label><br>
+
+                            <input type="radio" class="btn-check" name="graph_option" id="monthly" autocomplete="off" value="monthly" {% if graph_selected == 'monthly' %} checked {% endif %}>
+                            <label class="btn w-100" for="monthly">Monthly</label><br>
+
+                            <input type="radio" class="btn-check" name="graph_option" id="yearly" autocomplete="off" value="yearly" {% if graph_selected == 'yearly' %} checked {% endif %}>
+                            <label class="btn w-100" for="yearly">Yearly</label>
+                        </form>
+                        <script>
+                            document.querySelectorAll('input[name="graph_option"]').forEach((radio) => {
+                                radio.addEventListener('change', () => {
+                                    document.getElementById('graph_selection_form').submit();
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-9">
+                    {% if graph_selected == 'none' %}
+                    <div class="border border-secondary-subtle rounded-4 overflow-hidden" id="empty_graph">
+                        <p class="lead" id="empty_graph_msg">No Expenses Yet.</p>
+                    </div>
+                    {% else %}
+                    <div id="plotly_graph" class="border border-secondary-subtle rounded-4 overflow-hidden"></div>
+                    <script>
+                        var graph = {{ graph_json|safe }};
+                        Plotly.newPlot('plotly_graph', graph.data, graph.layout);
+                    </script>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="p-lg-3">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-secondary-subtle rounded-4">
+                        <div class="card-body">
+                            <p class="card-title">
+                                Spent today
+                            </p>
+                            <p class="lead card-text">
+                                {{ today | php }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-secondary-subtle rounded-4">
+                        <div class="card-body">
+                            <p class="card-title">
+                                Spent this week
+                            </p>
+                            <p class="lead card-text">
+                                {{ this_week | php }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-secondary-subtle rounded-4">
+                        <div class="card-body">
+                            <p class="card-title">
+                                Spent last month
+                            </p>
+                            <p class="lead card-text">
+                                {{ last_month | php }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-secondary-subtle rounded-4">
+                        <div class="card-body">
+                            <p class="card-title">
+                                Average Monthly
+                            </p>
+                            <p class="lead card-text">
+                                {{ ave_monthly | php }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+        const popover = new bootstrap.Popover('.popover-dismiss', {
+            trigger: 'focus'
+        })
+
+
+
+    </script>
+{% endblock %}

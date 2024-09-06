@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <script src="https://cdn.plot.ly/plotly-2.35.0.min.js" charset="utf-8"></script>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <link rel="stylesheet" href="../static/style.css">
+
+        <title>Wealth Weaver</title>
+    </head>
+
+    <body>
+        <!-- Username Toast -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="usernameToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Username Status</strong>
+                    <small>1s ago</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Username Updated!
+                </div>
+            </div>
+        </div>
+
+        <!-- Wrong Username Toast -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="wrongUsernameToast" class="toast bg-danger-subtle" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Username Status</strong>
+                    <small>1s ago</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Username not updated. Please enter a new username.
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Toast -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="passwordToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Password Status</strong>
+                    <small>1s ago</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Password Updated!
+                </div>
+            </div>
+        </div>
+
+        <!-- Wrong Password Toast -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="wrongPasswordToast" class="toast bg-danger-subtle" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Password Status</strong>
+                    <small>1s ago</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    Password not updated. Inputted fields are incorrect. Please try again
+                </div>
+            </div>
+        </div>
+
+        <!-- Username Modal -->
+        <div class="modal fade" id="usernameModal" tabindex="-1" aria-labelledby="usernameModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="usernameModalTitle">Modal title</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="newUsername" class="col-form-label">New Username:</label>
+                                <input autocomplete="off" type="text" class="form-control" id="newUsername" required="true">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveUsername">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Modal -->
+        <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="passwordModalTitle">Modal title</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="passwordForm">
+                            <div class="mb-3">
+                                <label for="currentPassword" class="col-form-label">Current Password:</label>
+                                <input autocomplete="off" type="password" class="form-control" id="currentPassword" required="true">
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPassword" class="col-form-label">New Password:</label>
+                                <input autocomplete="off" type="password" class="form-control" id="newPassword" required="true">
+                            </div>
+                            <div class="mb-3">
+                                <label for="newConfirmation" class="col-form-label">Confirm New Password:</label>
+                                <input autocomplete="off" type="password" class="form-control" id="newConfirmation" required="true">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="savePassword">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts for the Modals -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const usernameModal = new bootstrap.Modal(document.getElementById('usernameModal'));
+                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+
+                const saveUsername = document.getElementById('saveUsername');
+                const savePassword = document.getElementById('savePassword');
+
+                const newUsername = document.getElementById('newUsername');
+
+                const currentPassword = document.getElementById('currentPassword');
+                const newPassword = document.getElementById('newPassword');
+                const newConfirmation = document.getElementById('newConfirmation');
+
+                const usernameToast = new bootstrap.Toast(document.getElementById("usernameToast"));
+                const wrongUsernameToast = new bootstrap.Toast(document.getElementById("wrongUsernameToast"));
+                const passwordToast = new bootstrap.Toast(document.getElementById("passwordToast"));
+                const wrongPasswordToast = new bootstrap.Toast(document.getElementById("wrongPasswordToast"));
+
+                // focuses to next input when pressing enter
+                currentPassword.addEventListener("keydown", function(event) {
+                    if (event.key === 'Enter') {
+                        newPassword.focus();
+                    }
+                });
+
+                newPassword.addEventListener("keydown", function(event) {
+                    if (event.key === 'Enter') {
+                        newConfirmation.focus();
+                    }
+                });
+
+                // submits username when pressing enter while on input
+                newUsername.addEventListener("keydown", function(event) {
+                    if (event.key === 'Enter') {
+                        saveUsername.click();
+                    }
+                });
+
+                // submits password when pressing enter while on input
+                newConfirmation.addEventListener("keydown", function(event) {
+                    if (event.key === 'Enter') {
+                        savePassword.click();
+                    }
+                });
+
+                // Save Username
+                saveUsername.addEventListener("click", function() {
+                    const username = newUsername.value.trim();
+
+                    if(!username){
+                        wrongUsernameToast.show();
+                        return;
+                    }
+
+                    else{
+                        // Make an AJAX request to the Flask endpoint
+                    fetch('/change_username', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: username
+                        })
+                    })
+                    .catch(error => {
+                        console.error('Error updating username:', error);
+                    });
+
+                    // Show Toast
+                    usernameToast.show();
+                    usernameModal.hide();
+                    newUsername.value = '';
+                    }
+                });
+
+                // Save Password
+                savePassword.addEventListener("click", function() {
+                    const currentPasswordValue = currentPassword.value.trim();
+                    const newPasswordValue = newPassword.value.trim();
+                    const newConfirmationValue = newConfirmation.value.trim();
+
+                    // Make an AJAX request to the Flask endpoint
+                    fetch('/change_password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            currentPassword: currentPasswordValue,
+                            newPassword: newPasswordValue,
+                            newConfirmation: newConfirmationValue
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.matches && data.correct){
+                            passwordToast.show();
+                            passwordModal.hide();
+                            currentPassword.value = '';
+                            newPassword.value = '';
+                            newConfirmation.value = '';
+                        }
+                        else{
+                            wrongPasswordToast.show();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating password:', error);
+                    });
+
+
+                });
+            });
+        </script>
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 fixed-top">
+            <div class="container">
+                <form action="/" method="get">
+                    <button type="submit" class="navbar-brand btn btn-link">Wealth Weaver</button>
+                </form>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navmenu">
+                    <ul class="navbar-nav ms-auto">
+                        {% if session["user_id"] %}
+                            <li class="nav-item ms-5">
+                                <form action="/" method="get">
+                                    <button type="submit" class="nav-link">Dashboard</button>
+                                </form>
+                            </li>
+                            <li class="nav-item ms-5">
+                                <form action="/transactions" method="get">
+                                    <button type="submit" class="nav-link">Transactions</button>
+                                </form>
+                            </li>
+                            <div class="dropdown ms-5">
+                                <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    My Account
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <!-- Username Modal Button -->
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#usernameModal">
+                                            Change Username
+                                        </button>
+                                    </li>
+
+                                    <!-- Password Modal Button -->
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                                            Change Password
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <form action="/logout" method="get">
+                                            <button type="submit" class="dropdown-item">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <li class="var-item ms-5">
+                                <form action="/login" method="get">
+                                    <button type="submit" class="nav-link">Login</button>
+                                </form>
+                            </li>
+                            <li class="var-item ms-5">
+                                <form action="/register" method="get">
+                                    <button type="submit" class="nav-link">Register</button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section class="message bg-light text-dark">
+            <div class="container">
+                {% block message %}{% endblock %}
+            </div>
+        </section>
+
+        <section class="content bg-light text-dark">
+            <div class="container">
+                {% block main %}{% endblock %}
+            </div>
+        </section>
+
+
+
+        <!-- Footer -->
+        <footer class="p-3 bg-light text-dark text-center">
+            <div class="container">
+                <p>Copyright &copy; 2024 Wealth Weaver</p>
+            </div>
+        </footer>
+
+
+    </body>
+</html>

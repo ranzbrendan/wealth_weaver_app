@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block main %}
+    <!-- Showcase -->
+    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center text-center text-sm-start">
+        <div>
+            <h1>Manage Your
+                <span class="text-warning">Personal Finances</span>
+            </h1>
+            <p class="lead my-4">
+                Never lose track of your expenses.
+            </p>
+
+            <form action="/login" method="get">
+                <button type="submit" class="btn btn-outline-dark">
+                    Start Tracking!
+                </button>
+            </form>
+        </div>
+        <img class="img-fluid w-75 w-sm-50 mt-4 mt-sm-0" src="static/money_icon.svg" alt="">
+    </div>
+{% endblock %}
